@@ -1,4 +1,5 @@
 const char SCRIPT_JS[] PROGMEM = R"=====(
+
 document.addEventListener("touchstart", function () {
 }, !1);
 document.addEventListener("touchmove", function () {
@@ -7,7 +8,7 @@ document.addEventListener("touchmove", function () {
 $(function () {
     $('#power').change(function () {
         if($(this).hasClass('live')) {
-            getViaAjax('set?power=' + (this.checked ? 1023 : 0));
+            getViaAjax('set?power=' + (this.checked ? 1 : 0));
         }else{
             console.log('not live');
         }
@@ -45,19 +46,20 @@ function updateByClass(className, newValue) {
     console.log("updating " + className + " to " + newValue);
 
     switch (className) {
-
+        case "time_h":case "time_m":case "time_s":
+        newValue = pad(newValue,2);
         default:
             $('.' + className).each(function () {
                 switch ($(this).attr("type")) {
                     case "checkbox":
                         $(this).removeClass('live')
-                               .prop('checked', (newValue == "1"))
-                               .change()
-                               .addClass('live');
+                            .prop('checked', (newValue == "1"))
+                            .change()
+                            .addClass('live');
                         break;
 
                     case undefined:
-                        console.log('undefined');
+                        console.log('does not have a type');
                         $(this).html(newValue);
                         break;
                     case "range":
@@ -81,23 +83,24 @@ function readConfig(url) {
 }
 function createEventsUI(props) {
     console.log("Create events from ", props);
-    window.props = props;
 
     $(props).each(function () {
 
         var row = $('<div class="row"/>');
-        row.append("<div class=\"col-xs-12\"><dl class=\"dl-horizontal\"><dt>" + this.hour + ":" + this.minute + '</dt>'
-            + '<dd>' + this.caption + ' targeting ' + this.power + ' over ' + this.duration + ' seconds</dd></dl></div>'
+        row.append("<div class=\"col-xs-12\"><dl class=\"dl-horizontal\"><dt>" + pad(this.hour,2) + ":" + pad(this.minute,2) + '</dt>'
+            + '<dd>Event <span class="badge">' + this.caption + '</span> transitions to <span class="badge"><span class=\"glyphicon glyphicon-adjust\"></span> ' +   this.power + '</span> over <span class="badge">' + this.duration + '</span> seconds</dd></dl></div>'
         );
         $('.events').append(row);
-
     });
-
 }
+
+function pad(value, length) {
+    return (value.toString().length < length) ? pad("0"+value, length):value;
+}
+
 function createAlexaUI(props) {
     console.log("Creating Alexa UI from ", props);
     window.props = props;
-
 
     $(props).each(function () {
         var panel = $('<div class="well"/>');
@@ -108,9 +111,7 @@ function createAlexaUI(props) {
             + "<p class='text-right'><em>Alexa! Turn " + this.name + " on.</p>"
         );
         $('.alexa').append(panel);
-
     });
-
 }
 
 function updateFromObject(obj) {
@@ -131,7 +132,6 @@ function updateFromObject(obj) {
             }
         }
     }
-
 }
 
 )=====";

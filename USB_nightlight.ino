@@ -22,12 +22,12 @@
 #define ALEXA_NAME_NORMAL "Ted's night light"
 #define ALEXA_DESC_NORMAL "Powers the light according to lux limit for the current fade or time of day"
 
-#define ALEXA_NAME_PANIC "Ted's full beam"
-#define ALEXA_DESC_PANIC "Powers the light at 100%, fading back to minimum after 30 mins"
+#define ALEXA_NAME_ALTERNATE "Ted's full beam"
+#define ALEXA_DESC_ALTERNATE "Powers the light at 100%, fading back to minimum after 30 mins"
 
 #define EVENT_COUNT 5
-#define MAX_BRIGHTNESS  1024
-#define MIN_BRIGHTNESS  35
+#define MAX_BRIGHTNESS  1023 //the highest PWM value available  
+#define MIN_BRIGHTNESS  35   //below this, steps are obvious.
 
 struct device {
   bool powered;
@@ -135,7 +135,7 @@ void callback(const char * device_name, bool state) {
 
   String device_handle(device_name);
 
-  if (device_handle == ALEXA_NAME_PANIC) {
+  if (device_handle == ALEXA_NAME_ALTERNATE) {
     thisFade.startTime = millis(); //getCurrentSecond();
     thisFade.duration = 60 * 30 * 1000;
     thisFade.startBrightness = MAX_BRIGHTNESS;
@@ -334,7 +334,7 @@ void setup() {
 
   Serial.printf("\nStarting Fauxmo as %s\n", DEVICE_NAME);
   fauxmo.addDevice(ALEXA_NAME_NORMAL);
-  fauxmo.addDevice(ALEXA_NAME_PANIC);
+  fauxmo.addDevice(ALEXA_NAME_ALTERNATE);
   fauxmo.onMessage(callback);
 
   Serial.println(F("\n    Starting UDP"));
@@ -356,13 +356,19 @@ void setup() {
 void handleSet() {
   Serial.println(F(" set request received"));
 
-  int powerlevel = (httpServer.arg("power")).toInt();
-  Serial.print("Power is ["); Serial.print(powerlevel); Serial.print("].");
-
-  thisDevice.brightness_current = powerlevel;
-  if (powerlevel > 0) {
-      thisDevice.powered = true; 
+  if(httpServer.hasArg("power")){
+      int powered = httpServer.arg("power").toInt();
+      Serial.print("Power is ["); Serial.print(powered); Serial.print("].");
+      thisDevice.powered = (powered > 0); 
   }
+  
+  if(httpServer.hasArg("brightness")){
+      int brightness = httpServer.arg("brightness").toInt();
+      Serial.print("Brightness is ["); Serial.print(brightness); Serial.print("].");
+      thisDevice.brightness_current = brightness;
+      thisFade.active = false; //turn off any current fade, otherwise your change will be lost.
+  }
+  
   sendStatus();
 }
 
@@ -375,8 +381,10 @@ void handleFade() {
   thisFade.startBrightness = httpServer.arg("start").toInt();
   thisFade.endBrightness = httpServer.arg("end").toInt();
   thisFade.active = true;
+  
   thisDevice.powered = true;
- 
+  thisDevice.brightness_current = thisFade.startBrightness;
+   
   sendStatus();
 }
 
@@ -390,13 +398,20 @@ void sendConfig() {
   + (String) "\"device_name\": \"" + DEVICE_NAME + "\","
   + (String) "\"device_description\": \"" + DEVICE_DESC + "\","
   + (String) "\"brightness_current\": \"" + thisDevice.brightness_current + "\","
+  + (String) "\"power\": \"" + thisDevice.powered + "\","
+  + (String) "\"local_ip\": \"" + WiFi.localIP().toString() + "\","
+  + (String) "\"time_h\": \"" + hour() + "\","
+  + (String) "\"time_m\": \"" + minute() + "\","
+  + (String) "\"time_s\": \"" + second() + "\","
+  
   + (String) "\"alexa\": [{"
   + (String) "\"name\": \"" + ALEXA_NAME_NORMAL + "\","
   + (String) "\"description\": \"" + ALEXA_DESC_NORMAL + "\""
   + (String) "},{"
-  + (String) "\"name\": \"" + ALEXA_NAME_PANIC + "\","
-  + (String) "\"description\": \"" + ALEXA_NAME_PANIC + "\""
+  + (String) "\"name\": \"" + ALEXA_NAME_ALTERNATE + "\","
+  + (String) "\"description\": \"" + ALEXA_DESC_ALTERNATE + "\""
   + (String) "}],"
+  
   + (String) "\"events\": [";
 
   for (int i = 0; i < EVENT_COUNT; i++) {

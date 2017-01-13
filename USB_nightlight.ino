@@ -375,11 +375,24 @@ void handleSet() {
 void handleFade() {
   //eg ?start=1023&end=1&duration=1800
   Serial.println(F(" fade request received"));
+  
+  int fadeStart = thisDevice.brightness_current;
+  int fadeEnd = MIN_BRIGHTNESS;
+    
+  if (httpServer.hasArg("start")){
+      fadeStart = httpServer.arg("start").toInt();
+      Serial.print("Starting from ["); Serial.print(fadeStart); Serial.print("].");
+  }
 
+  if (httpServer.hasArg("end")){
+      fadeEnd = httpServer.arg("end").toInt();
+      Serial.print("Ending at ["); Serial.print(fadeEnd); Serial.print("].");
+  }
+  
   thisFade.startTime = millis(); 
   thisFade.duration = httpServer.arg("duration").toInt() * 1000;
-  thisFade.startBrightness = httpServer.arg("start").toInt();
-  thisFade.endBrightness = httpServer.arg("end").toInt();
+  thisFade.startBrightness = fadeStart;
+  thisFade.endBrightness = fadeEnd;
   thisFade.active = true;
   
   thisDevice.powered = true;

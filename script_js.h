@@ -1,5 +1,6 @@
 const char SCRIPT_JS[] PROGMEM = R"=====(
 
+
 document.addEventListener("touchstart", function () {
 }, !1);
 document.addEventListener("touchmove", function () {
@@ -23,6 +24,8 @@ $(function () {
         return false;
     });
 
+    addQuickFades();
+
 });
 
 function getViaAjax(url) {
@@ -40,6 +43,81 @@ function getViaAjax(url) {
             alert("failed");
         }
     });
+}
+function addQuickFades(){
+    var div = '';
+    for (i=0;i<=100;i=i+10){
+
+        valueForFade = (Math.pow(2,((100-i)/10))-1);
+        //create the row
+        div = div + "<div class=\"btn-group btn-group-justified\" role=\"group\">";
+
+        //start brightness
+        div = div + (
+               "<div class=\"btn-group\" role=\"group\">"
+             + "<button type=\"button\" data-value=\"" + (valueForFade) + "\" class=\"btn btn-default fade-start\">"
+             + "<div style=\"width:" + (100-i) + "%;height:100%;background: #1c1e22;border-radius: 2px;\">&nbsp</div>"
+             + "</button>"
+             + "</div>"
+        );
+
+        //duration
+        div = div + (
+              "<div class=\"btn-group\" role=\"group\">"
+            + "<button type=\"button\" data-value=\"" + ((i+20)/2)*60 + "\" class=\"btn btn-default fade-duration\">"
+            + "<span class=\"glyphicon glyphicon-time\"></span> " + (i+20)/2 + " mins</button>"
+            + "</div>"
+        );
+
+        //end brightness
+        div = div + (
+        "<div class=\"btn-group\" role=\"group\">"
+        + "<button type=\"button\" data-value=\"" + (valueForFade) + "\" class=\"btn btn-default fade-end\">"
+        + "<div class=\"pull-right\" style=\"width:" + (100-i) + "%;height:100%;background: #1c1e22;border-radius: 2px;\">&nbsp</div>"
+        + "</button>"
+        + "</div>"
+        );
+        //close the row
+        div = div + "</div>";
+    }
+    //add the go button
+    div += "<button type=\"button\" class=\"btn btn-default btn-block fade-trigger\">Go</button>";
+
+    $('.quickfades').append(div);
+    $('.fade-start').click(function(){
+        $('.fade-start').not(this).removeClass('btn-info');
+        $(this).toggleClass('btn-info');
+    });
+    $('.fade-duration').click(function(){
+        $('.fade-duration').not(this).removeClass('btn-info');
+        $(this).toggleClass('btn-info');
+    });
+    $('.fade-end').click(function(){
+        $('.fade-end').not(this).removeClass('btn-info');
+        $(this).toggleClass('btn-info');
+    });
+    $('.fade-trigger').click(function(){
+        var param = [];
+        var test = $('.fade-start.btn-info');
+        if(test.length){
+            param.push("start=" + test.data().value);
+        }
+
+        test = $('.fade-end.btn-info');
+        if(test.length){
+            param.push("end=" + test.data().value);
+        }
+
+        test = $('.fade-duration.btn-info');
+        if(test.length){
+            param.push("duration=" + test.data().value);
+        }
+
+        url = "fade?" + param.join("&");
+        console.log(url);
+        getViaAjax(url);
+    })
+
 }
 
 function updateByClass(className, newValue) {
@@ -133,7 +211,6 @@ function updateFromObject(obj) {
         }
     }
 }
-
 )=====";
  
 

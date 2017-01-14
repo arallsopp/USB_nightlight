@@ -21,13 +21,23 @@ const char ROOT_HTML[] PROGMEM = R"=====(
 
     <p class="device_description lead">connecting to device..</p>
     <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#control"><span class="glyphicon glyphicon-off"></span> Control</a></li>
-        <li><a data-toggle="tab" href="#status"><span class="glyphicon glyphicon-cog"></span> Status</a></li>
-        <li><a data-toggle="tab" href="#alexa"><span class="glyphicon glyphicon-comment"></span> Alexa</a></li>
+        <li class="active"><a data-toggle="tab" href="#home"><span class="glyphicon glyphicon-home"></span>
+            Home</a></li>
+        <li><a data-toggle="tab" href="#fades"><span class="glyphicon glyphicon-eye-close"></span> Fades</a></li>
+
+        <li role="presentation" class="pull-right dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                More <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a data-toggle="tab" href="#status"><span class="glyphicon glyphicon-cog"></span> Status</a></li>
+                <li><a data-toggle="tab" href="#alexa"><span class="glyphicon glyphicon-comment"></span> Alexa</a></li>
+            </ul>
+        </li>
     </ul>
 
     <div class="tab-content">
-        <div id="control" class="tab-pane fade in active">
+        <div id="home" class="tab-pane fade in active">
             <p></p>
 
             <div class="well">
@@ -40,8 +50,8 @@ const char ROOT_HTML[] PROGMEM = R"=====(
                     </div>
                     <div class="col-xs-6">
                         <div class="checkbox">
-                            <label> <input id="auto" class="auto live" type="checkbox" checked data-toggle="toggle" value="">
-                                Timer</label>
+                            <label> <input id="auto" class="auto live" type="checkbox" checked data-toggle="toggle"
+                                           value=""> Timer</label>
                         </div>
                     </div>
 
@@ -50,10 +60,10 @@ const char ROOT_HTML[] PROGMEM = R"=====(
             <div class="well">
                 <div class="row">
                     <div class="col-xs-12">
-                        <label for="brightness"><span class="glyphicon glyphicon-adjust"
-                                                       aria-hidden="true"></span> Brightness</label> <input
-                            id="brightness" type="range" class="brightness_current" min="0" max="1023"
-                            onchange="getViaAjax('set?brightness=' + this.value);return false;">
+                        <label for="brightness"><span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
+                            Brightness</label> <input id="brightness" type="range" class="brightness_current" min="0"
+                                                      max="1023"
+                                                      onchange="getViaAjax('set?brightness=' + this.value);return false;">
                     </div>
                 </div>
             </div>
@@ -61,19 +71,40 @@ const char ROOT_HTML[] PROGMEM = R"=====(
                 <div class="well">
 
                     <label><span class="glyphicon glyphicon-eye-open"></span> Full beam mode </label>
-                    <p class="help-block">Sets the lamp to 100% brightness, then fades down to 1% over the specified duration</p>
+
+                    <p class="help-block">Sets the lamp to 100% brightness, then fades down to 1% over the specified
+                        duration</p>
 
                     <div class="btn-group btn-group-justified" role="group" aria-label="...">
                         <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-default timer-trigger"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> 15 mins</button>
+                            <button type="button" class="btn btn-default timer-trigger"><span
+                                    class="glyphicon glyphicon-time" aria-hidden="true"></span> 15 mins
+                            </button>
                         </div>
                         <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-default timer-trigger"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> 30 mins</button>
+                            <button type="button" class="btn btn-default timer-trigger"><span
+                                    class="glyphicon glyphicon-time" aria-hidden="true"></span> 30 mins
+                            </button>
                         </div>
                         <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-default timer-trigger"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> 60 mins</button>
+                            <button type="button" class="btn btn-default timer-trigger"><span
+                                    class="glyphicon glyphicon-time" aria-hidden="true"></span> 60 mins
+                            </button>
                         </div>
                     </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div id="fades" class="tab-pane fade ">
+            <p></p>
+
+            <div>
+                <div class="well">
+
+
+                    <div class="quickfades"></div>
                 </div>
 
             </div>
@@ -86,7 +117,8 @@ const char ROOT_HTML[] PROGMEM = R"=====(
 
             <div class="events well"></div>
             <hr/>
-                <p class="small pull-right">Loaded at <span class="time_h"></span>:<span class="time_m"></span>:<span class="time_s"></span> from IP:<span class="local_ip"></span>.</p>
+            <p class="small pull-right">Loaded at <span class="time_h"></span>:<span class="time_m"></span>:<span
+                    class="time_s"></span> from IP:<span class="local_ip"></span>.</p>
 
         </div>
         <div id="alexa" class="tab-pane fade">
